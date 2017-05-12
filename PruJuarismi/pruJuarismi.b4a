@@ -1,0 +1,120 @@
+﻿Version=6.8
+NumberOfModules=3
+Module1=Marcador
+Module2=EstPartidos
+Module3=MenuEstad
+Build1=Default,b4a.example
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: https://www.b4x.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="19"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~
+IconFile=
+NumberOfFiles=5
+File1=estpartidos.bal
+File2=main.bal
+File3=marcador.bal
+File4=marcador.db
+File5=menuestad.bal
+NumberOfLibraries=2
+Library1=core
+Library2=sql
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Pru-Juarismi
+	#VersionCode: 1
+	#VersionName: 
+	'SupportedOrientations possible values: landscape
+	#SupportedOrientations: landscape
+	#CanInstallToExternalStorage: False
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: true
+	#IncludeTitle: False
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'These variables can be accessed from all modules.
+	Public intUser As Int
+	
+	Public SQL1 As SQL
+	Public cursor1 As Cursor
+	
+	Public DBFileName As String					: DBFileName = "marcador.db"
+		Public DBFileDir As String					: DBFileDir = File.DirInternal
+	'Public DBFileDir As String			'		: DBFileDir = File.DirRootExternal
+	Public DBTableEquipos As String				: DBTableEquipos = "Equipos"
+	Public DBTableMiJugador As String			: DBTableMiJugador = "MiJugador"
+	Public DBTablePartidos As String			: DBTableMiJugador = "Partidos"
+	Public DBTableUsuarios As String			: DBTableUsuarios = "Usuarios"
+	
+	Public TipoMenuEstad As Int ' 0 - partidos, 1 - mijugador
+	
+End Sub
+
+Sub Globals
+	'These global variables will be redeclared each time the activity is created.
+	'These variables can only be accessed from this module.
+
+	Private btnAnonimo As Button
+	Private btnIdentificar As Button
+	
+	Private txtPwd As EditText
+	Private txtUser As EditText
+	
+
+	Private imgSalir As ImageView
+	
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+
+	Activity.LoadLayout("Main")
+'	New
+	Msgbox("Bienvenido a Al-Juarismi!", "")
+	intUser=0
+	If File.Exists(File.DirInternal,DBFileName) = False Then
+		File.Copy(File.DirAssets,DBFileName,File.DirInternal,DBFileName)
+		Msgbox("base de datos no encontrada" , "")
+	End If
+	
+	If SQL1.IsInitialized = False Then
+		SQL1.Initialize(File.DirInternal, DBFileName, False)
+	End If
+
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+
+Sub btnIdentificar_Click
+	Dim intEncontrado As Int = 0
+	Dim strSQL As String = "SELECT * FROM Usuarios where User = '" & txtUser.Text & "' and Pwd = '" & txtPwd.Text & "'"
+	'strSQL= "SELECT * FROM USUARIOS"
+	cursor1 = SQL1.ExecQuery(strSQL)
+	
+	For i = 0 To cursor1.RowCount - 1
+		cursor1.Position = i
+		intUser= cursor1.GetInt("idUser")
+		intEncontrado=1
+	Next
+	If intEncontrado=1 Then
+		StartActivity(Marcador)
+		
+	Else
+		Msgbox("El usuario/contraseña son erróneos","")
+	End If
+End Sub
+
+Sub btnAnonimo_Click
+	StartActivity(Marcador)
+End Sub
+
+Sub imgSalir_Click
+	Activity.Finish
+End Sub
+
